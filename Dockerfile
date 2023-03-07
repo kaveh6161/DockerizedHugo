@@ -21,21 +21,20 @@ RUN git clone https://github.com/gohugoio/hugo.git && \
     cd hugo && \
     go build
 
-# CMD ["hugo", "version"]
-
 # Second stage
-FROM alpine:3.14
+FROM alpine:3.17
 
 # Copy the compiled binary from the first stage
 COPY --from=builder /hugo/hugo /usr/local/bin/hugo
 
 # Hugo extended is dynamically linked against glibc, which is not available on Alpine. One solution is to install gcompat compatibility layer.
 # This will provide a glibc-compatible layer for musl, which is the default C library on Alpine Linux.
-# RUN apk add gcompat
+RUN apk add --no-cache gcompat
+# RUN apk add --no-cache git go musl-dev gcc
 
 # Add a non-root user for running the container
-# RUN adduser -S hugo
-# USER hugo
+RUN adduser -S hugo
+USER hugo
 
 # Run Hugo version
-CMD ["hugo", "version"]
+CMD ["/usr/local/bin/hugo", "version"]
