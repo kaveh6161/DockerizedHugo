@@ -1,0 +1,35 @@
+# First stage
+FROM debian:bullseye-slim AS builder
+
+# Install necessary packages
+RUN apt-get update && \
+    apt-get install -y wget git gcc libc6-dev
+
+# Download and install the latest stable version of Go
+ENV GO_VERSION=1.20.1
+RUN wget https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf go$GO_VERSION.linux-amd64.tar.gz && \
+    rm go$GO_VERSION.linux-amd64.tar.gz
+
+# Set environment variables for Go
+ENV PATH=$PATH:/usr/local/go/bin
+# ENV GOPATH=/go
+
+# Clone and compile Hugo
+RUN git clone https://github.com/gohugoio/hugo.git && \
+    cd hugo && \
+    go build
+
+# Second stage
+FROM debian:bullseye-slim
+
+# Copy the compiled binary from the first stage
+COPY --from=builder /hugo/hugo /usr/local/bin/hugo
+
+# Add a non-root user for running the container
+RUN useradd -m -s /bin/bash hugo
+USER hugo
+
+# Run Hugo version
+CMD ["hugo", "version"]
