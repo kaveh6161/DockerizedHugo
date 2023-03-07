@@ -1,4 +1,4 @@
-# DockerizedHugo
+# Dockerized Hugo
 Containerising the HUGO static site generator
 
 The official HUGO repo is available here:
