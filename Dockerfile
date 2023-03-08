@@ -15,11 +15,12 @@ RUN wget https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz && \
 # Set environment variables for Go
 ENV PATH=$PATH:/usr/local/go/bin
 # ENV GOPATH=/go
+ENV CGO_ENABLED=0
 
 # Clone and compile Hugo
 RUN git clone https://github.com/gohugoio/hugo.git && \
     cd hugo && \
-    go build
+    go build -ldflags '-extldflags "-static"'
 
 # Second stage
 FROM alpine:3.17
